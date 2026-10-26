@@ -121,6 +121,87 @@ function simulate() {
   });
 }
 simulate();
+<script>
+function simulate() {
+  const reps = Math.max(1, Math.min(10000,
+    Number(document.getElementById("reps").value) || 100));
+  const size = Math.max(1, Math.min(1000,
+    Number(document.getElementById("size").value) || 30));
+
+  const means = [];
+
+  for (let i = 0; i < reps; i++) {
+    let sum = 0;
+    for (let j = 0; j < size; j++) {
+      sum += -Math.log(1 - Math.random());
+    }
+    means.push(sum / size);
+  }
+
+  const avg = means.reduce((a, b) => a + b, 0) / reps;
+  const variance = means.reduce((s, x) =>
+    s + (x - avg) ** 2, 0) / reps;
+  const sd = Math.sqrt(variance);
+
+  document.getElementById("result").textContent =
+    Trung bình mẫu: ${avg.toFixed(4)} |  +
+    Độ lệch chuẩn: ${sd.toFixed(4)} |  +
+    SE lý thuyết: ${(1 / Math.sqrt(size)).toFixed(4)};
+
+  const canvas = document.getElementById("chart");
+  const ctx = canvas.getContext("2d");
+  const w = canvas.width;
+  const h = canvas.height;
+
+  ctx.clearRect(0, 0, w, h);
+
+  const min = Math.min(...means);
+  const max = Math.max(...means);
+  const bins = 20;
+  const step = (max - min) / bins || 1;
+  const counts = Array(bins).fill(0);
+
+  means.forEach(x => {
+    const k = Math.min(bins - 1,
+      Math.floor((x - min) / step));
+    counts[k]++;
+  });
+
+  const maxCount = Math.max(...counts, 1);
+  const left = 45, right = 15, top = 20, bottom = 45;
+  const plotW = w - left - right;
+  const plotH = h - top - bottom;
+  const barW = plotW / bins;
+
+  ctx.strokeStyle = "#a8b9d5";
+  ctx.fillStyle = "#42bde8";
+  ctx.font = "11px Arial";
+  ctx.textAlign = "center";
+
+  ctx.beginPath();
+  ctx.moveTo(left, top);
+  ctx.lineTo(left, h - bottom);
+  ctx.lineTo(w - right, h - bottom);
+  ctx.stroke();
+
+  counts.forEach((count, i) => {
+    const bh = count / maxCount * plotH;
+    const x = left + i * barW;
+    ctx.fillRect(x + 1, h - bottom - bh,
+      Math.max(1, barW - 2), bh);
+
+    if (i % 4 === 0) {
+      ctx.fillStyle = "#dce7f7";
+      ctx.fillText(
+        (min + (i + 0.5) * step).toFixed(2),
+        x + barW / 2, h - bottom + 15
+      );
+      ctx.fillStyle = "#42bde8";
+    }
+  });
+}
+
+simulate();
 </script>
 </body>
 </html>
