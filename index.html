@@ -1,163 +1,17 @@
-
 <!DOCTYPE html>
 <html lang="vi">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>CLT Simulation</title>
-<style>
-body {
-  margin: 0;
-  padding: 30px 16px;
-  font-family: Arial, sans-serif;
-  background: #0b1730;
-  color: white;
-  text-align: center;
-}
-main { max-width: 850px; margin: auto; }
-h1 { color: #65e6a6; }
-.card {
-  margin: 24px auto;
-  padding: 24px;
-  border: 1px solid #34496b;
-  border-radius: 16px;
-  background: #142440;
-}
-input, button {
-  padding: 10px;
-  margin: 8px;
-  border-radius: 8px;
-}
-button {
-  background: #65e6a6;
-  border: none;
-  cursor: pointer;
-  font-weight: bold;
-}
-canvas { width: 100%; max-width: 750px; }
-</style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mô phỏng định lý giới hạn trung tâm</title>
 </head>
 <body>
-<main>
-  <h1>CLT Simulation</h1>
-  <p>Định lý giới hạn trung tâm</p>
+  <h1>Mô phỏng định lý giới hạn trung tâm (CLT)</h1>
+  <p>Video minh họa quá trình phân phối mẫu tiến gần phân phối chuẩn.</p>
 
-  <section class="card">
-    <label>Số lần lặp:
-      <input id="reps" type="number" value="1000" min="1" max="10000">
-    </label>
-    <br>
-    <label>Cỡ mẫu:
-      <input id="size" type="number" value="30" min="1" max="1000">
-    </label>
-    <br>
-    <button id="run">Mô phỏng</button>
-    <p id="result">Nhấn Mô phỏng để bắt đầu.</p>
-    <canvas id="chart" width="750" height="350"></canvas>
-  </section>
-</main>
-
-<script>
-function simulate() {
-  const repsInput = document.getElementById("reps");
-  const sizeInput = document.getElementById("size");
-  const result = document.getElementById("result");
-  const canvas = document.getElementById("chart");
-  const ctx = canvas.getContext("2d");
-
-  const reps = Math.max(1, Math.min(10000,
-    Math.floor(Number(repsInput.value) || 100)));
-  const size = Math.max(1, Math.min(1000,
-    Math.floor(Number(sizeInput.value) || 30)));
-
-  repsInput.value = reps;
-  sizeInput.value = size;
-
-  // Lấy mẫu từ phân phối mũ có kỳ vọng bằng 1.
-  const means = [];
-
-  for (let i = 0; i < reps; i++) {
-    let sum = 0;
-    for (let j = 0; j < size; j++) {
-      sum += -Math.log(1 - Math.random());
-    }
-    means.push(sum / size);
-  }
-
-  const avg = means.reduce((a, b) => a + b, 0) / reps;
-  const variance = means.reduce(
-    (s, x) => s + (x - avg) ** 2, 0
-  ) / reps;
-  const sd = Math.sqrt(variance);
-
-  result.textContent =
-    `Trung bình mẫu: ${avg.toFixed(4)} | ` +
-    `Độ lệch chuẩn: ${sd.toFixed(4)} | ` +
-    `SE lý thuyết: ${(1 / Math.sqrt(size)).toFixed(4)}`;
-
-  // Chia các trung bình mẫu thành 20 cột.
-  const bins = 20;
-  const min = Math.min(...means);
-  const max = Math.max(...means);
-  const step = (max - min) / bins || 1;
-  const counts = Array(bins).fill(0);
-
-  means.forEach(x => {
-    const k = Math.min(bins - 1,
-      Math.floor((x - min) / step));
-    counts[k]++;
-  });
-
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-  const w = canvas.width;
-  const h = canvas.height;
-  const left = 45, right = 15, top = 20, bottom = 45;
-  const plotW = w - left - right;
-  const plotH = h - top - bottom;
-  const barW = plotW / bins;
-  const maxCount = Math.max(...counts, 1);
-
-  ctx.strokeStyle = "#a8b9d5";
-  ctx.fillStyle = "#42bde8";
-  ctx.font = "12px Arial";
-  ctx.textAlign = "center";
-
-  // Trục biểu đồ.
-  ctx.beginPath();
-  ctx.moveTo(left, top);
-  ctx.lineTo(left, h - bottom);
-  ctx.lineTo(w - right, h - bottom);
-  ctx.stroke();
-
-  counts.forEach((count, i) => {
-    const barH = count / maxCount * plotH;
-    const x = left + i * barW;
-
-    ctx.fillRect(
-      x + 1, h - bottom - barH,
-      Math.max(1, barW - 2), barH
-    );
-
-    if (i % 4 === 0) {
-      ctx.fillStyle = "#dce7f7";
-      ctx.fillText(
-        (min + (i + 0.5) * step).toFixed(2),
-        x + barW / 2, h - bottom + 18
-      );
-      ctx.fillStyle = "#42bde8";
-    }
-  });
-
-  ctx.fillStyle = "#ffffff";
-  ctx.textAlign = "left";
-  ctx.fillText("Số lần xuất hiện", 8, 14);
-  ctx.textAlign = "center";
-  ctx.fillText("Trung bình mẫu", w / 2, h - 8);
-}
-
-document.getElementById("run").addEventListener("click", simulate);
-simulate();
-</script>
+  <video width="100%" controls>
+    <source src="clt.mp4" type="video/mp4">
+    Trình duyệt không hỗ trợ phát video.
+  </video>
 </body>
 </html>
