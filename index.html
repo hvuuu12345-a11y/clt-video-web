@@ -1,42 +1,41 @@
+
 <!DOCTYPE html>
 <html lang="vi">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>CLT Simulation</title>
-  <style>
-    body {
-      margin: 0;
-      padding: 40px 20px;
-      font-family: Arial, sans-serif;
-      background: #0b1730;
-      color: white;
-      text-align: center;
-    }
-    main {
-      max-width: 850px;
-      margin: auto;
-    }
-    h1 { color: #65e6a6; }
-    .card {
-      margin: 24px auto;
-      padding: 24px;
-      border: 1px solid #34496b;
-      border-radius: 16px;
-      background: #142440;
-    }
-    button, input {
-      padding: 10px;
-      margin: 6px;
-      border-radius: 8px;
-    }
-    button {
-      background: #65e6a6;
-      border: 0;
-      cursor: pointer;
-    }
-    canvas { max-width: 100%; }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CLT Simulation</title>
+<style>
+body {
+  margin: 0;
+  padding: 30px 16px;
+  font-family: Arial, sans-serif;
+  background: #0b1730;
+  color: white;
+  text-align: center;
+}
+main { max-width: 850px; margin: auto; }
+h1 { color: #65e6a6; }
+.card {
+  margin: 24px auto;
+  padding: 24px;
+  border: 1px solid #34496b;
+  border-radius: 16px;
+  background: #142440;
+}
+input, button {
+  padding: 10px;
+  margin: 8px;
+  border-radius: 8px;
+}
+button {
+  background: #65e6a6;
+  border: none;
+  cursor: pointer;
+  font-weight: bold;
+}
+canvas { width: 100%; max-width: 750px; }
+</style>
 </head>
 <body>
 <main>
@@ -45,89 +44,36 @@
 
   <section class="card">
     <label>Số lần lặp:
-      <input id="reps" type="number" value="100" min="1" max="10000">
+      <input id="reps" type="number" value="1000" min="1" max="10000">
     </label>
+    <br>
     <label>Cỡ mẫu:
       <input id="size" type="number" value="30" min="1" max="1000">
     </label>
-    <button onclick="simulate()">Mô phỏng</button>
+    <br>
+    <button id="run">Mô phỏng</button>
     <p id="result">Nhấn Mô phỏng để bắt đầu.</p>
-    <canvas id="chart" width="750" height="320"></canvas>
+    <canvas id="chart" width="750" height="350"></canvas>
   </section>
 </main>
 
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<script>
-let chart;
-
-function simulate() {
-  const reps = Math.max(1, Math.min(10000,
-    Number(document.getElementById('reps').value) || 100));
-  const size = Math.max(1, Math.min(1000,
-    Number(document.getElementById('size').value) || 30));
-
-  const means = [];
-
-  for (let i = 0; i < reps; i++) {
-    let sum = 0;
-    for (let j = 0; j < size; j++) {
-      sum += -Math.log(1 - Math.random());
-    }
-    means.push(sum / size);
-  }
-
-  const average = means.reduce((a, b) => a + b, 0) / reps;
-  const variance = means.reduce((s, x) =>
-    s + (x - average) ** 2, 0) / reps;
-  const sd = Math.sqrt(variance);
-
-  document.getElementById('result').textContent =
-    Trung bình mẫu: ${average.toFixed(4)} |  +
-    Độ lệch chuẩn: ${sd.toFixed(4)} |  +
-    SE lý thuyết: ${(1 / Math.sqrt(size)).toFixed(4)};
-
-  const bins = 20;
-  const min = Math.min(...means);
-  const max = Math.max(...means);
-  const width = (max - min) / bins || 1;
-  const counts = Array(bins).fill(0);
-
-  means.forEach(x => {
-    counts[Math.min(bins - 1, Math.floor((x - min) / width))]++;
-  });
-
-  const labels = counts.map((_, i) =>
-    (min + (i + 0.5) * width).toFixed(2));
-
-  if (chart) chart.destroy();
-  chart = new Chart(document.getElementById('chart'), {
-    type: 'bar',
-    data: {
-      labels,
-      datasets: [{
-        label: 'Số trung bình mẫu',
-        data: counts,
-        backgroundColor: '#42bde8'
-      }]
-    },
-    options: {
-      responsive: true,
-      plugins: { legend: { labels: { color: 'white' } } },
-      scales: {
-        x: { ticks: { color: 'white' } },
-        y: { beginAtZero: true, ticks: { color: 'white' } }
-      }
-    }
-  });
-}
-simulate();
 <script>
 function simulate() {
-  const reps = Math.max(1, Math.min(10000,
-    Number(document.getElementById("reps").value) || 100));
-  const size = Math.max(1, Math.min(1000,
-    Number(document.getElementById("size").value) || 30));
+  const repsInput = document.getElementById("reps");
+  const sizeInput = document.getElementById("size");
+  const result = document.getElementById("result");
+  const canvas = document.getElementById("chart");
+  const ctx = canvas.getContext("2d");
 
+  const reps = Math.max(1, Math.min(10000,
+    Math.floor(Number(repsInput.value) || 100)));
+  const size = Math.max(1, Math.min(1000,
+    Math.floor(Number(sizeInput.value) || 30)));
+
+  repsInput.value = reps;
+  sizeInput.value = size;
+
+  // Lấy mẫu từ phân phối mũ có kỳ vọng bằng 1.
   const means = [];
 
   for (let i = 0; i < reps; i++) {
@@ -139,25 +85,20 @@ function simulate() {
   }
 
   const avg = means.reduce((a, b) => a + b, 0) / reps;
-  const variance = means.reduce((s, x) =>
-    s + (x - avg) ** 2, 0) / reps;
+  const variance = means.reduce(
+    (s, x) => s + (x - avg) ** 2, 0
+  ) / reps;
   const sd = Math.sqrt(variance);
 
-  document.getElementById("result").textContent =
-    Trung bình mẫu: ${avg.toFixed(4)} |  +
-    Độ lệch chuẩn: ${sd.toFixed(4)} |  +
-    SE lý thuyết: ${(1 / Math.sqrt(size)).toFixed(4)};
+  result.textContent =
+    `Trung bình mẫu: ${avg.toFixed(4)} | ` +
+    `Độ lệch chuẩn: ${sd.toFixed(4)} | ` +
+    `SE lý thuyết: ${(1 / Math.sqrt(size)).toFixed(4)}`;
 
-  const canvas = document.getElementById("chart");
-  const ctx = canvas.getContext("2d");
-  const w = canvas.width;
-  const h = canvas.height;
-
-  ctx.clearRect(0, 0, w, h);
-
+  // Chia các trung bình mẫu thành 20 cột.
+  const bins = 20;
   const min = Math.min(...means);
   const max = Math.max(...means);
-  const bins = 20;
   const step = (max - min) / bins || 1;
   const counts = Array(bins).fill(0);
 
@@ -167,17 +108,22 @@ function simulate() {
     counts[k]++;
   });
 
-  const maxCount = Math.max(...counts, 1);
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+  const w = canvas.width;
+  const h = canvas.height;
   const left = 45, right = 15, top = 20, bottom = 45;
   const plotW = w - left - right;
   const plotH = h - top - bottom;
   const barW = plotW / bins;
+  const maxCount = Math.max(...counts, 1);
 
   ctx.strokeStyle = "#a8b9d5";
   ctx.fillStyle = "#42bde8";
-  ctx.font = "11px Arial";
+  ctx.font = "12px Arial";
   ctx.textAlign = "center";
 
+  // Trục biểu đồ.
   ctx.beginPath();
   ctx.moveTo(left, top);
   ctx.lineTo(left, h - bottom);
@@ -185,22 +131,32 @@ function simulate() {
   ctx.stroke();
 
   counts.forEach((count, i) => {
-    const bh = count / maxCount * plotH;
+    const barH = count / maxCount * plotH;
     const x = left + i * barW;
-    ctx.fillRect(x + 1, h - bottom - bh,
-      Math.max(1, barW - 2), bh);
+
+    ctx.fillRect(
+      x + 1, h - bottom - barH,
+      Math.max(1, barW - 2), barH
+    );
 
     if (i % 4 === 0) {
       ctx.fillStyle = "#dce7f7";
       ctx.fillText(
         (min + (i + 0.5) * step).toFixed(2),
-        x + barW / 2, h - bottom + 15
+        x + barW / 2, h - bottom + 18
       );
       ctx.fillStyle = "#42bde8";
     }
   });
+
+  ctx.fillStyle = "#ffffff";
+  ctx.textAlign = "left";
+  ctx.fillText("Số lần xuất hiện", 8, 14);
+  ctx.textAlign = "center";
+  ctx.fillText("Trung bình mẫu", w / 2, h - 8);
 }
 
+document.getElementById("run").addEventListener("click", simulate);
 simulate();
 </script>
 </body>
