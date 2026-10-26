@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CLT Simulation</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 40px 20px;
+      font-family: Arial, sans-serif;
+      background: #0b1730;
+      color: white;
+      text-align: center;
+    }
+    main {
+      max-width: 850px;
+      margin: auto;
+    }
+    h1 { color: #65e6a6; }
+    .card {
+      margin: 24px auto;
+      padding: 24px;
+      border: 1px solid #34496b;
+      border-radius: 16px;
+      background: #142440;
+    }
+    button, input {
+      padding: 10px;
+      margin: 6px;
+      border-radius: 8px;
+    }
+    button {
+      background: #65e6a6;
+      border: 0;
+      cursor: pointer;
+    }
+    canvas { max-width: 100%; }
+  </style>
+</head>
+<body>
+<main>
+  <h1>CLT Simulation</h1>
+  <p>Định lý giới hạn trung tâm</p>
+
+  <section class="card">
+    <label>Số lần lặp:
+      <input id="reps" type="number" value="100" min="1" max="10000">
+    </label>
+    <label>Cỡ mẫu:
+      <input id="size" type="number" value="30" min="1" max="1000">
+    </label>
+    <button onclick="simulate()">Mô phỏng</button>
+    <p id="result">Nhấn Mô phỏng để bắt đầu.</p>
+    <canvas id="chart" width="750" height="320"></canvas>
+  </section>
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+let chart;
+
+function simulate() {
+  const reps = Math.max(1, Math.min(10000,
+    Number(document.getElementById('reps').value) || 100));
+  const size = Math.max(1, Math.min(1000,
+    Number(document.getElementById('size').value) || 30));
+
+  const means = [];
+
+  for (let i = 0; i < reps; i++) {
+    let sum = 0;
+    for (let j = 0; j < size; j++) {
+      sum += -Math.log(1 - Math.random());
+    }
+    means.push(sum / size);
+  }
+
+  const average = means.reduce((a, b) => a + b, 0) / reps;
+  const variance = means.reduce((s, x) =>
+    s + (x - average) ** 2, 0) / reps;
+  const sd = Math.sqrt(variance);
+
+  document.getElementById('result').textContent =
+    Trung bình mẫu: ${average.toFixed(4)} |  +
+    Độ lệch chuẩn: ${sd.toFixed(4)} |  +
+    SE lý thuyết: ${(1 / Math.sqrt(size)).toFixed(4)};
+
+  const bins = 20;
+  const min = Math.min(...means);
+  const max = Math.max(...means);
+  const width = (max - min) / bins || 1;
+  const counts = Array(bins).fill(0);
+
+  means.forEach(x => {
+    counts[Math.min(bins - 1, Math.floor((x - min) / width))]++;
+  });
+
+  const labels = counts.map((_, i) =>
+    (min + (i + 0.5) * width).toFixed(2));
+
+  if (chart) chart.destroy();
+  chart = new Chart(document.getElementById('chart'), {
+    type: 'bar',
+    data: {
+      labels,
+      datasets: [{
+        label: 'Số trung bình mẫu',
+        data: counts,
+        backgroundColor: '#42bde8'
+      }]
+    },
+    options: {
+      responsive: true,
+      plugins: { legend: { labels: { color: 'white' } } },
+      scales: {
+        x: { ticks: { color: 'white' } },
+        y: { beginAtZero: true, ticks: { color: 'white' } }
+      }
+    }
+  });
+}
+simulate();
+</script>
+</body>
+</html>
