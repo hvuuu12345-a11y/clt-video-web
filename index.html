@@ -1,0 +1,127 @@
+
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CLT Simulation</title>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            background: linear-gradient(135deg, #e0f2fe, #ede9fe);
+            color: #263248;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 800px;
+            background: white;
+            padding: 50px 35px;
+            border-radius: 20px;
+            text-align: center;
+            box-shadow: 0 10px 35px rgba(0,0,0,0.08);
+        }
+
+        .icon {
+            font-size: 55px;
+            margin-bottom: 20px;
+        }
+
+        h1 {
+            color: #4f46a5;
+            font-size: 32px;
+            margin-bottom: 18px;
+        }
+
+        .description {
+            color: #64748b;
+            line-height: 1.8;
+            margin-bottom: 28px;
+        }
+
+        .info {
+            background: #f5f3ff;
+            padding: 22px;
+            border-radius: 12px;
+            margin-bottom: 30px;
+            line-height: 1.8;
+        }
+
+        .info strong {
+            color: #4f46a5;
+        }
+
+        .button {
+            display: inline-block;
+            padding: 14px 30px;
+            background: #635bca;
+            color: white;
+            text-decoration: none;
+            border-radius: 10px;
+            font-weight: bold;
+            transition: 0.2s;
+        }
+
+        .button:hover {
+            background: #4338a8;
+            transform: translateY(-2px);
+        }
+
+        footer {
+            margin-top: 35px;
+            color: #94a3b8;
+            font-size: 13px;
+        }
+
+        @media (max-width: 550px) {
+            h1 {
+                font-size: 25px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="icon">📈</div>
+
+        <h1>Central Limit Theorem</h1>
+
+        <p class="description">
+            Mô phỏng Định lý giới hạn trung tâm (CLT),
+            giúp trực quan hóa sự phân phối của trung bình
+            mẫu khi số lần lấy mẫu tăng lên.
+        </p>
+
+        <div class="info">
+            <strong>Nội dung mô phỏng</strong>
+            <p>Phân phối: Exponential</p>
+            <p>Số lần lặp: 100</p>
+            <p>Phương pháp: Lấy mẫu và phân tích trung bình mẫu</p>
+        </div>
+
+        <a class="button"
+           href="https://clt-video-web-k163.onrender.com"
+           target="_blank"
+           rel="noopener noreferrer">
+            Xem mô phỏng CLT
+        </a>
+
+        <footer>
+            CLT Simulation · Statistics Project
+        </footer>
+    </div>
+</body>
+</html>
